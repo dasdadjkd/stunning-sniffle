@@ -1,0 +1,5 @@
+.env
+.hoplite/
+accounts.txt
+node_modules/
+screenshots/

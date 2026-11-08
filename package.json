@@ -1,0 +1,20 @@
+{
+  "name": "signup-qa-harness",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Local/staging signup QA harness with isolated parallel browser contexts.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "init-adapter": "node scripts/init-adapter.mjs",
+    "dry-run": "node src/index.mjs --dry-run",
+    "start": "node src/index.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  },
+  "optionalDependencies": {
+    "imapflow": "^1.0.180",
+    "mailparser": "^3.7.1"
+  }
+}
