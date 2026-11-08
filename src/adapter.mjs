@@ -27,6 +27,11 @@ export const dryRunAdapter = {
 
 export async function loadAdapter(config) {
   if (config.dryRun) return dryRunAdapter;
+  if (config.adapterProfile) {
+    const { createHopliteAdapter } = await import('./adapters/hoplite.mjs');
+    const { loadProfile } = await import('./adapters/profile.mjs');
+    return createHopliteAdapter(loadProfile(config.adapterProfile));
+  }
   const { adapter } = await import(config.appAdapterPath).catch(() => {
     throw new Error(
       `no app adapter found at ${config.appAdapterPath}. Copy ` +

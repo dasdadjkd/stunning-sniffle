@@ -40,9 +40,13 @@ export const SELECTORS = {
 };
 
 function locator(page, spec) {
-  if (spec.role) return page.getByRole(spec.role, { name: spec.name, exact: spec.exact });
-  if (spec.label) return page.getByLabel(spec.label, { exact: spec.exact });
-  if (spec.placeholder) return page.getByPlaceholder(spec.placeholder, { exact: spec.exact });
+  if (!spec) throw new Error('no selector configured for this step');
+  const name = spec.name ?? spec.namePattern;
+  if (spec.role) return page.getByRole(spec.role, { name, exact: spec.exact });
+  const label = spec.label ?? spec.labelPattern;
+  if (label !== undefined) return page.getByLabel(label, { exact: spec.exact });
+  const placeholder = spec.placeholder ?? spec.placeholderPattern;
+  if (placeholder !== undefined) return page.getByPlaceholder(placeholder, { exact: spec.exact });
   throw new Error(`selector spec needs role, label or placeholder: ${JSON.stringify(spec)}`);
 }
 

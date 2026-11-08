@@ -5,6 +5,7 @@ import { loadConfig } from '../src/config.mjs';
 import { mailpitMailbox } from '../src/otp.mjs';
 import { runPool } from '../src/runner.mjs';
 import { createHopliteAdapter } from '../src/adapters/hoplite.mjs';
+import { loadProfile } from '../src/adapters/profile.mjs';
 import { startFixture } from './fixtures/fixture-server.mjs';
 
 const fixture = await startFixture();
@@ -16,17 +17,9 @@ const config = loadConfig({
   ACCOUNTS_FILE: '/tmp/hoplite-adapter-accounts.txt',
 });
 
-// The fixture mounts the signup form at `/` and has no payment step; only the
-// routes differ from the real flow.
-const adapter = createHopliteAdapter({
-  routes: {
-    signup: '/',
-    afterSignup: /check-email/,
-    afterVerify: /onboarding/,
-    plan: /plan/,
-    upgrade: /upgrade/,
-  },
-});
+// Driven entirely from a JSON profile, so this exercises the same path a
+// real retarget uses: `--profile profiles/fixture.json`.
+const adapter = createHopliteAdapter(loadProfile(new URL('../profiles/fixture.json', import.meta.url)));
 
 const browser = await launchBrowser({ channel: config.browserChannel });
 const notified = [];

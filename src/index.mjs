@@ -19,7 +19,8 @@ async function main() {
   log(
     `target=${config.baseUrl} workers=${config.workers} ` +
       `mode=${config.dryRun ? 'dry-run' : 'browser'} otp=${config.otpProvider} ` +
-      `browser=${config.browserChannel}`,
+      `browser=${config.browserChannel}` +
+      (config.adapterProfile ? ` profile=${config.adapterProfile}` : ''),
   );
 
   let browser = null;

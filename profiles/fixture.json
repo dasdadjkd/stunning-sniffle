@@ -1,0 +1,25 @@
+{
+  "description": "The bundled fixture app (test/fixtures/fixture-server.mjs). Used to prove a profile drives a real browser.",
+  "routes": {
+    "signup": "/",
+    "afterSignup": "check-email",
+    "afterVerify": "onboarding",
+    "plan": "plan",
+    "upgrade": "upgrade"
+  },
+  "selectors": {
+    "firstName": { "label": "First name" },
+    "lastName": { "label": "Last name" },
+    "email": { "label": "Email" },
+    "password": { "label": "Password", "exact": true },
+    "confirmPassword": { "label": "Confirm password" },
+    "createAccount": { "role": "button", "namePattern": "create account" },
+    "code": { "label": "Verification code" },
+    "verify": { "role": "button", "namePattern": "verify" },
+    "skip": { "role": "link", "namePattern": "skip" },
+    "choosePlan": { "role": "button", "namePattern": "choose plan" },
+    "cardNumber": { "label": "Card number" },
+    "cardExpiry": { "label": "Expiry" },
+    "cardCvc": { "label": "CVC" }
+  }
+}

@@ -57,11 +57,20 @@ It defaults to `src/app-adapter.mjs`.
 
 ## Retargeting
 
-The target is two settings, not code:
+Three settings, no code changes:
 
 ```bash
 BASE_URL=https://staging.your-domain.test   # what to drive
 ALLOWED_HOSTS=staging.your-domain.test      # the guard's allowlist
+ADAPTER_PROFILE=profiles/hoplite.json       # how that deployment's pages look
+```
+
+Every setting is also a flag, so one checkout drives several deployments
+without editing `.env`:
+
+```bash
+npm start -- --target https://staging.acme.test --profile profiles/acme.json
+npm start -- --target http://localhost:3000 --profile profiles/fixture.json --dry-run
 ```
 
 `assertTestTarget` in `src/config.mjs` accepts `localhost`, `127.0.0.1`,
@@ -71,12 +80,31 @@ to an origin outside that set is stopped. Keep the allowlist to hosts you
 operate — the guard is what makes a mass-signup tool safe to have around, and
 `npm test` asserts that production hosts are still refused.
 
-Markup lives in `src/adapters/hoplite.mjs`: `ROUTES` holds the URL fragments the
-flow passes through, `SELECTORS` holds one role- or label-based locator per
-field. Edit those two tables to match a deployment; the pool, mailbox reader,
-code polling and notifications need no changes. `createHopliteAdapter({ routes,
-selectors, card })` overrides either table per run, which is also how the
-fixture test drives the same adapter.
+### Profiles
+
+A profile is the deployment's flow in JSON — copy `profiles/hoplite.json` and
+edit it:
+
+```json
+{
+  "routes": { "signup": "/signup", "afterSignup": "check[-_]?email" },
+  "selectors": {
+    "email": { "labelPattern": "e-?mail" },
+    "createAccount": { "role": "button", "namePattern": "sign up|create account" },
+    "confirmPassword": false
+  }
+}
+```
+
+Strings in `routes` and any `*Pattern` field are compiled to case-insensitive
+regexes; plain `label`/`placeholder`/`name` are passed to Playwright as-is, with
+`"exact": true` when you need it. Set a selector to `false` to skip that field.
+`"card"` in a profile supplies test-card values. Nothing else changes — the
+pool, mailbox reader, code polling and notifications are untouched.
+
+`profiles/fixture.json` describes the bundled fixture app, so
+`node test/hoplite-adapter.manual.mjs` proves the JSON path end to end in a real
+browser.
 
 ```bash
 npm run dry-run                                  # pipeline only, no browser

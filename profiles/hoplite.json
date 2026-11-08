@@ -1,0 +1,25 @@
+{
+  "description": "Default Hoplite flow. Copy this file, change the entries, and select it with ADAPTER_PROFILE.",
+  "routes": {
+    "signup": "/signup",
+    "afterSignup": "check[-_]?email|verify",
+    "afterVerify": "onboarding|welcome|app/",
+    "plan": "plan",
+    "upgrade": "upgrade|billing|checkout"
+  },
+  "selectors": {
+    "firstName": { "labelPattern": "first name" },
+    "lastName": { "labelPattern": "last name" },
+    "email": { "labelPattern": "e-?mail" },
+    "password": { "label": "Password", "exact": true },
+    "confirmPassword": { "labelPattern": "confirm password" },
+    "createAccount": { "role": "button", "namePattern": "create account|sign up|continue" },
+    "code": { "labelPattern": "verification code|code" },
+    "verify": { "role": "button", "namePattern": "verify|continue" },
+    "skip": { "role": "link", "namePattern": "skip|not now|later" },
+    "choosePlan": { "role": "button", "namePattern": "upgrade|choose plan|select plan" },
+    "cardNumber": { "labelPattern": "card number" },
+    "cardExpiry": { "labelPattern": "expir" },
+    "cardCvc": { "labelPattern": "cvc|security code" }
+  }
+}

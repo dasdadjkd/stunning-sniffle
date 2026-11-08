@@ -30,6 +30,23 @@ export function readEnv(path = '.env') {
   return { ...file, ...process.env };
 }
 
+/** Parses the flags a run accepts. Unknown flags are ignored, not fatal. */
+export function parseArgs(argv = []) {
+  const out = { dryRun: false, target: null, profile: null, adapter: null };
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    const value = () => argv[i + 1] ?? null;
+    if (arg === '--dry-run') out.dryRun = true;
+    else if (arg === '--target') out.target = value();
+    else if (arg.startsWith('--target=')) out.target = arg.slice('--target='.length);
+    else if (arg === '--profile') out.profile = value();
+    else if (arg.startsWith('--profile=')) out.profile = arg.slice('--profile='.length);
+    else if (arg === '--adapter') out.adapter = value();
+    else if (arg.startsWith('--adapter=')) out.adapter = arg.slice('--adapter='.length);
+  }
+  return out;
+}
+
 export function isTestHost(hostname, allowlist = []) {
   const host = hostname.toLowerCase();
   if (LOCAL_HOSTS.has(host)) return true;
@@ -58,6 +75,7 @@ export function assertTestTarget(baseUrl, allowlist = []) {
 }
 
 export function loadConfig(env = readEnv(), argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
   const allowlist = (env.ALLOWED_HOSTS ?? '')
     .split(',')
     .map((h) => h.trim().toLowerCase())
@@ -66,7 +84,9 @@ export function loadConfig(env = readEnv(), argv = process.argv.slice(2)) {
   if (!Number.isInteger(workers) || workers < 1 || workers > 20) {
     throw new Error('WORKERS must be an integer between 1 and 20');
   }
-  const baseUrl = env.BASE_URL || 'http://localhost:3000';
+  // --target wins over BASE_URL so one checkout can drive several
+  // deployments; it still has to pass assertTestTarget below.
+  const baseUrl = args.target || env.BASE_URL || 'http://localhost:3000';
   const otpProvider = (env.OTP_PROVIDER || 'mailpit').toLowerCase();
   const browserChannel = (env.BROWSER_CHANNEL || 'chromium').toLowerCase();
   if (!CHANNELS.has(browserChannel)) {
@@ -81,7 +101,10 @@ export function loadConfig(env = readEnv(), argv = process.argv.slice(2)) {
     workers,
     mailpitUrl: (env.MAILPIT_URL || 'http://localhost:8025').replace(/\/+$/, ''),
     otpProvider,
-    appAdapterPath: env.APP_ADAPTER ? path.resolve(env.APP_ADAPTER) : DEFAULT_ADAPTER,
+    adapterProfile: args.profile || env.ADAPTER_PROFILE || null,
+    appAdapterPath: (args.adapter || env.APP_ADAPTER)
+      ? path.resolve(args.adapter || env.APP_ADAPTER)
+      : DEFAULT_ADAPTER,
     browserChannel,
     headless: (env.HEADLESS ?? '1') !== '0',
     imap: {
@@ -97,6 +120,6 @@ export function loadConfig(env = readEnv(), argv = process.argv.slice(2)) {
     telegramToken: env.TELEGRAM_BOT_TOKEN || null,
     telegramChatId: env.TELEGRAM_CHAT_ID || null,
     accountsFile: env.ACCOUNTS_FILE || 'accounts.txt',
-    dryRun: argv.includes('--dry-run') || env.DRY_RUN === '1',
+    dryRun: args.dryRun || env.DRY_RUN === '1',
   };
 }
