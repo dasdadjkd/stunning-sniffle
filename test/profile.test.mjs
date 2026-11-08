@@ -35,7 +35,16 @@ test('a selector with no accessible locator is rejected at load time', () => {
 });
 
 test('loadProfile reports a missing file with its path', () => {
-  assert.throws(() => loadProfile('/nope/missing.json'), /profile not found: \/nope\/missing\.json/);
+  const missing = path.join('nope', 'missing.json');
+  assert.throws(
+    () => loadProfile(missing),
+    (error) => {
+      // Compared against path.resolve so the assertion holds on Windows too.
+      assert.match(error.message, /profile not found: /);
+      assert.ok(error.message.includes(path.resolve(missing)), error.message);
+      return true;
+    },
+  );
 });
 
 test('a profile drives the same adapter as the built-in tables', async () => {

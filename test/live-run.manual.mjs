@@ -1,5 +1,9 @@
 // End-to-end check against the local fixture app with a real browser.
 // Run with: node test/live-run.manual.mjs
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { loadConfig } from '../src/config.mjs';
 import { launchBrowser } from '../src/browser.mjs';
 import { mailpitMailbox } from '../src/otp.mjs';
@@ -12,8 +16,8 @@ const config = loadConfig({
   MAILPIT_URL: fixture.url,
   WORKERS: '3',
   EMAIL_DOMAIN: 'example.test',
-  ACCOUNTS_FILE: '/tmp/live-accounts.txt',
-  APP_ADAPTER: new URL('./fixtures/app-adapter.mjs', import.meta.url).pathname,
+  ACCOUNTS_FILE: path.join(os.tmpdir(), 'live-accounts.txt'),
+  APP_ADAPTER: fileURLToPath(new URL('./fixtures/app-adapter.mjs', import.meta.url)),
   BROWSER_CHANNEL: 'chromium',
 });
 

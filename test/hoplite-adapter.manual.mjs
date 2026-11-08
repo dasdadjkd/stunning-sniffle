@@ -1,5 +1,8 @@
 // End-to-end check of the Hoplite adapter against the local fixture app.
 // Run with: node test/hoplite-adapter.manual.mjs
+import os from 'node:os';
+import path from 'node:path';
+
 import { launchBrowser } from '../src/browser.mjs';
 import { loadConfig } from '../src/config.mjs';
 import { mailpitMailbox } from '../src/otp.mjs';
@@ -14,7 +17,7 @@ const config = loadConfig({
   MAILPIT_URL: fixture.url,
   WORKERS: '2',
   EMAIL_DOMAIN: 'example.test',
-  ACCOUNTS_FILE: '/tmp/hoplite-adapter-accounts.txt',
+  ACCOUNTS_FILE: path.join(os.tmpdir(), 'hoplite-adapter-accounts.txt'),
 });
 
 // Driven entirely from a JSON profile, so this exercises the same path a
